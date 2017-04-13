@@ -70,6 +70,7 @@ namespace TemporaryNamespace
 			if (cr.Errors.HasErrors)
 			{
 				StringBuilder sb = new StringBuilder();
+				sb.Append("Compilation failed: ");
 				Regex reg = new Regex(@":\serror\s(?<reason>.*)$");
 
 				foreach (var error in cr.Errors)
