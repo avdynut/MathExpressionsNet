@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>AvdyNut</authors>
+    <owners>$author$</owners>
+    <!--<licenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</licenseUrl>-->
+    <projectUrl>http://github.com/avdynut/MathExpressionsNet</projectUrl>
+    <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Dynamic Creation of Expression from String, calculation symbolically derivative, partial differentiation, simplifying math expressions</description>
+    <!--<releaseNotes>First release</releaseNotes>-->
+    <copyright>Copyright 2017</copyright>
+    <tags>math expression string derivative evaluate simplify</tags>
+  </metadata>
+</package>

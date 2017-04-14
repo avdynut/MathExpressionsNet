@@ -1,0 +1,1 @@
+nuget pack ..\MathExpressionsNet\MathExpressionsNet.csproj -Build -Prop Configuration=Release
