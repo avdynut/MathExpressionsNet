@@ -14,30 +14,46 @@ namespace MathExpressionsNet
 		/// express a term as style such like { constant, body }.
 		/// 2 * x * 3 * y -> { 6, x * y }.
 		/// </summary>
-		class Term
+		private class Term
 		{
 			public double Constant { get; set; }
 			public Expression Body { get; set; }
-			public Term(double c) { this.Constant = c; this.Body = null; }
-			public Term(Expression b) { this.Constant = 1.0; this.Body = b; }
-			public Term(double c, Expression b) { this.Constant = c; this.Body = b; }
+
+			public Term(double c)
+			{
+				Constant = c;
+				Body = null;
+			}
+
+			public Term(Expression b)
+			{
+				Constant = 1.0;
+				Body = b;
+			}
+
+			public Term(double c, Expression b)
+			{
+				Constant = c;
+				Body = b;
+			}
 
 			public Expression ToExpression()
 			{
-				if (this.Constant == 0)
+				if (Constant == 0)
 					return Expression.Constant(0.0);
-				if (this.Body == null)
-					return Expression.Constant(this.Constant);
-				if (this.Constant == 1)
-					return this.Body;
+				if (Body == null)
+					return Expression.Constant(Constant);
+				if (Constant == 1)
+					return Body;
 
 				return Expression.Multiply(
-					Expression.Constant(this.Constant),
-					this.Body);
+					Expression.Constant(Constant),
+					Body);
 			}
 		}
 
 		#endregion
+
 		#region Derive
 
 		/// <summary>
@@ -118,6 +134,7 @@ namespace MathExpressionsNet
 						Expression d = op.Derive(paramName);
 						return OptimizedNegate(d);
 					}
+
 				case ExpressionType.Add:
 					{
 						Expression dleft =
@@ -261,16 +278,12 @@ namespace MathExpressionsNet
 		/// <param name="methodName">method name</param>
 		/// <param name="arguments">arguments of the method</param>
 		/// <returns>expression</returns>
-		static Expression MathCall(string methodName,
-			IEnumerable<Expression> arguments)
+		private static Expression MathCall(string methodName, IEnumerable<Expression> arguments)
 		{
-			return Expression.Call(null,
-				typeof(System.Math).GetMethod(methodName),
-				arguments);
+			return Expression.Call(null, typeof(Math).GetMethod(methodName), arguments);
 		}
 
-		static Expression MathCall(string methodName,
-			params Expression[] arguments)
+		private static Expression MathCall(string methodName, params Expression[] arguments)
 		{
 			return MathCall(methodName, arguments);
 		}
@@ -278,6 +291,7 @@ namespace MathExpressionsNet
 		#endregion
 
 		#endregion
+
 		#region optimized arithmetic
 
 		/// <summary>
@@ -289,8 +303,7 @@ namespace MathExpressionsNet
 		{
 			if (e.IsConstant())
 			{
-				return Expression.Constant(
-					-(double)((ConstantExpression)e).Value);
+				return Expression.Constant(-(double)((ConstantExpression)e).Value);
 			}
 
 			if (e.NodeType == ExpressionType.Negate)
@@ -309,7 +322,7 @@ namespace MathExpressionsNet
 		/// <param name="e1">operand 1</param>
 		/// <param name="e2">operand 2</param>
 		/// <returns>result</returns>
-		static Expression OptimizedAdd(Expression e1, Expression e2)
+		private static Expression OptimizedAdd(Expression e1, Expression e2)
 		{
 			// 0 + x -> x
 			if (e1.IsConstant())
@@ -365,7 +378,7 @@ namespace MathExpressionsNet
 		/// <param name="e1">operand 1</param>
 		/// <param name="e2">operand 2</param>
 		/// <returns>result</returns>
-		static Expression OptimizedSub(Expression e1, Expression e2)
+		private static Expression OptimizedSub(Expression e1, Expression e2)
 		{
 			// 0 - x -> -x
 			if (e1.IsConstant())
@@ -419,7 +432,7 @@ namespace MathExpressionsNet
 		/// <param name="e1">operand 1</param>
 		/// <param name="e2">operand 2</param>
 		/// <returns>result</returns>
-		static Expression OptimizedMul(Expression e1, Expression e2)
+		private static Expression OptimizedMul(Expression e1, Expression e2)
 		{
 			Expression mul = Expression.Multiply(e1, e2);
 
@@ -433,7 +446,7 @@ namespace MathExpressionsNet
 		/// <param name="e1">operand 1</param>
 		/// <param name="e2">operand 2</param>
 		/// <returns>result</returns>
-		static Expression OptimizedDiv(Expression e1, Expression e2)
+		private static Expression OptimizedDiv(Expression e1, Expression e2)
 		{
 			Expression div = Expression.Divide(e1, e2);
 
@@ -529,7 +542,7 @@ namespace MathExpressionsNet
 		/// </summary>
 		/// <param name="e">expression to be reduced</param>
 		/// <returns>reduced result</returns>
-		static Expression Simplify(this Expression e)
+		private static Expression Simplify(this Expression e)
 		{
 			switch (e.NodeType)
 			{
@@ -568,7 +581,7 @@ namespace MathExpressionsNet
 		/// </summary>
 		/// <param name="e">terget</param>
 		/// <returns>result</returns>
-		static Expression Cancel(this Expression e)
+		private static Expression Cancel(this Expression e)
 		{
 			List<Term> terms = new List<Term>();
 
@@ -583,7 +596,7 @@ namespace MathExpressionsNet
 		/// <param name="e">expression to be deconstructed</param>
 		/// <param name="minus">negate sign of e if minus == true</param>
 		/// <param name="terms">list into which deconstructed terms are stored</param>
-		static void DeconstructSum(Expression e, bool minus, List<Term> terms)
+		private static void DeconstructSum(Expression e, bool minus, List<Term> terms)
 		{
 			if (e.NodeType == ExpressionType.Negate)
 			{
@@ -625,7 +638,7 @@ namespace MathExpressionsNet
 		/// </summary>
 		/// <param name="terms">list in which expressions are stored</param>
 		/// <returns>sum of terms</returns>
-		static Expression ConstructSum(List<Term> terms)
+		private static Expression ConstructSum(List<Term> terms)
 		{
 			Expression sum = Expression.Constant(0.0);
 			foreach (var term in terms)
@@ -643,7 +656,7 @@ namespace MathExpressionsNet
 		/// for example, 2 * x * 3 * x * 4 -> 24 * x * x.
 		/// </summary>
 		/// <param name="e">Expression to be optimized</param>
-		static Term FoldConstants(Expression e)
+		private static Term FoldConstants(Expression e)
 		{
 			List<Expression> n = new List<Expression>();
 			List<Expression> d = new List<Expression>();
@@ -656,7 +669,7 @@ namespace MathExpressionsNet
 		/// </summary>
 		/// <param name="e">terget</param>
 		/// <returns>result</returns>
-		static Expression Reduce(this Expression e)
+		private static Expression Reduce(this Expression e)
 		{
 			return FoldConstants(e).ToExpression();
 		}
@@ -666,8 +679,8 @@ namespace MathExpressionsNet
 		/// x / a * y * z / b / c -> num = {x, y, z}, denom = {a, b, c}.
 		/// </summary>
 		/// <param name="e">expression to be deconstructed</param>
-		/// <param name="list">list into which deconstructed expressions are stored</param>
-		static void DeconstructProduct(Expression e, List<Expression> num, List<Expression> denom)
+		/// <param name="num">list into which deconstructed expressions are stored</param>
+		private static void DeconstructProduct(Expression e, List<Expression> num, List<Expression> denom)
 		{
 			if (e.NodeType == ExpressionType.Multiply)
 			{
@@ -724,7 +737,7 @@ namespace MathExpressionsNet
 		/// {x, y, z} -> x * y * z.
 		/// </summary>
 		/// <param name="list">list in which expressions are stored</param>
-		static Term ConstructProduct(IEnumerable<Expression> list)
+		private static Term ConstructProduct(IEnumerable<Expression> list)
 		{
 			double c = 1;
 			Expression prod = null;
@@ -748,7 +761,7 @@ namespace MathExpressionsNet
 		/// </summary>
 		/// <param name="num">list in which expressions of numerator are stored</param>
 		/// <param name="denom">list in which expressions of denominator are stored</param>
-		static Term ConstructProduct(List<Expression> num, List<Expression> denom)
+		private static Term ConstructProduct(List<Expression> num, List<Expression> denom)
 		{
 			double c = 1;
 
@@ -796,7 +809,7 @@ namespace MathExpressionsNet
 		/// <param name="t1">operand 1</param>
 		/// <param name="t2">operand 2</param>
 		/// <returns>result</returns>
-		static Term Div(Term t1, Term t2)
+		private static Term Div(Term t1, Term t2)
 		{
 			double c1 = t1.Constant;
 			double c2 = t2.Constant;
@@ -950,7 +963,7 @@ namespace MathExpressionsNet
 		/// </summary>
 		/// <param name="e">operand</param>
 		/// <returns>true if e is a constant</returns>
-		static bool IsConstant(this Expression e)
+		private static bool IsConstant(this Expression e)
 		{
 			return e.NodeType == ExpressionType.Constant
 				   && e.Type.Name == "Double";
@@ -959,7 +972,7 @@ namespace MathExpressionsNet
 		#endregion
 		#region identical for parameters/arguments
 
-		static bool IsIdenticalTo(
+		private static bool IsIdenticalTo(
 			this ICollection<ParameterExpression> args1,
 			ICollection<ParameterExpression> args2)
 		{
@@ -977,7 +990,7 @@ namespace MathExpressionsNet
 			return true;
 		}
 
-		static bool IsIdenticalTo(
+		private static bool IsIdenticalTo(
 			this ICollection<Expression> args1,
 			ICollection<Expression> args2)
 		{

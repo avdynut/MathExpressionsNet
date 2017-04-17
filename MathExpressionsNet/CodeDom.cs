@@ -11,9 +11,10 @@ namespace MathExpressionsNet
 {
 	public class CodeDom
 	{
-		const string TYPE_NAME = "TemporaryNamespace.Temporary";
-		const string METHOD_NAME = "Get";
-		const string CODE_HEADER = @"
+		private const string TypeName = "TemporaryNamespace.Temporary";
+		private const string MethodName = "Get";
+
+		private const string CodeHeader = @"
 namespace TemporaryNamespace
 {
 	using System;
@@ -25,10 +26,12 @@ namespace TemporaryNamespace
 		{
 			return New(
 ";
-		const string CODE_FOOTER = @"
+
+		private const string CodeFooter = @"
 				);
 		}
 
+		static Expression New(Expression<Func<double>> e) { return e; }
 		static Expression New(Expression<Func<double, double>> e) { return e; }
 		static Expression New(Expression<Func<double, double, double>> e) { return e; }
 		static Expression New(Expression<Func<double, double, double, double>> e) { return e; }
@@ -37,29 +40,28 @@ namespace TemporaryNamespace
 }
 ";
 
-		static CompilerResults Compile(string source)
+		private static CompilerResults Compile(string source)
 		{
 			CodeDomProvider provider = new CSharpCodeProvider(
 				new Dictionary<string, string> { { "CompilerVersion", "v3.5" } });
 
-			CompilerParameters cp = new CompilerParameters();
-			cp.GenerateInMemory = true;
+			var cp = new CompilerParameters { GenerateInMemory = true };
 			cp.ReferencedAssemblies.Add("System.Core.dll");
 
 			CompilerResults cr = provider.CompileAssemblyFromSource(
 				cp,
-				CODE_HEADER + source + CODE_FOOTER
+				CodeHeader + source + CodeFooter
 			);
 
 			return cr;
 		}
 
-		static Expression Execute(CompilerResults cr)
+		private static Expression Execute(CompilerResults cr)
 		{
 			Assembly asm = cr.CompiledAssembly;
-			Type myClass = asm.GetType(TYPE_NAME);
+			Type myClass = asm.GetType(TypeName);
 			Object o = Activator.CreateInstance(myClass);
-			MethodInfo mi = myClass.GetMethod(METHOD_NAME);
+			MethodInfo mi = myClass.GetMethod(MethodName);
 			return (Expression)mi.Invoke(o, null);
 		}
 
@@ -69,9 +71,9 @@ namespace TemporaryNamespace
 
 			if (cr.Errors.HasErrors)
 			{
-				StringBuilder sb = new StringBuilder();
+				var sb = new StringBuilder();
 				sb.Append("Compilation failed: ");
-				Regex reg = new Regex(@":\serror\s(?<reason>.*)$");
+				var reg = new Regex(@":\serror\s(?<reason>.*)$");
 
 				foreach (var error in cr.Errors)
 				{
@@ -86,6 +88,12 @@ namespace TemporaryNamespace
 			}
 
 			return Execute(cr);
+		}
+
+		public static Expression<T> ParseExpression<T>(string func, params string[] variables)
+		{
+			var expr = (Expression<T>)GetExpressionFrom($"({string.Join(",", variables)}) => {func}");
+			return expr.Simplify();
 		}
 	}
 

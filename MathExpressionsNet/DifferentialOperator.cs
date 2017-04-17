@@ -5,7 +5,7 @@ namespace MathExpressionsNet
 {
 	public class DifferentialOperator
 	{
-		Expression characteristic;
+		private Expression characteristic;
 
 		#region init
 
@@ -16,7 +16,7 @@ namespace MathExpressionsNet
 		/// <param name="paramName">parameter name</param>
 		public DifferentialOperator(string paramName)
 		{
-			this.characteristic = Expression.Parameter(typeof(double), paramName);
+			characteristic = Expression.Parameter(typeof(double), paramName);
 		}
 
 		/// <summary>
@@ -25,7 +25,7 @@ namespace MathExpressionsNet
 		/// Laplacian = (∂/∂x)^2 + (∂/∂y)^2
 		/// </summary>
 		/// <param name="characteristic"></param>
-		DifferentialOperator(Expression characteristic)
+		private DifferentialOperator(Expression characteristic)
 		{
 			this.characteristic = characteristic;
 		}
@@ -55,6 +55,7 @@ namespace MathExpressionsNet
 			: this((Expression)e) { }
 
 		#endregion
+
 		#region apply operator
 
 		/// <summary>
@@ -65,7 +66,7 @@ namespace MathExpressionsNet
 		/// <returns>derivative</returns>
 		public Expression<T> Apply<T>(Expression<T> e)
 		{
-			return Apply(this.characteristic, e);
+			return Apply(characteristic, e);
 		}
 
 		/// <summary>
@@ -128,6 +129,7 @@ namespace MathExpressionsNet
 		}
 
 		#endregion
+
 		#region operator
 
 		/// <summary>
